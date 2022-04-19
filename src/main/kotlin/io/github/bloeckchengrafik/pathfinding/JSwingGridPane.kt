@@ -4,13 +4,20 @@ import java.awt.Graphics
 import java.awt.Graphics2D
 import java.awt.event.MouseEvent
 import java.awt.event.MouseListener
+import java.lang.Math.floorDiv
 import javax.swing.JPanel
 
 class JSwingGridPane : JPanel(), MouseListener {
     lateinit var grid: Grid
+    private lateinit var start: IntArray
+    private lateinit var end: IntArray
+    private var path = mutableListOf<IntArray>()
 
     fun setGrid() {
         this.grid = Grid(this.width / 10, this.height / 10)
+        this.start = intArrayOf(floorDiv(grid.grid.size, 2), floorDiv(grid.grid.size, 2))
+        this.end = intArrayOf(floorDiv(grid.grid.size, 2), 10)
+        path.add(start)
         this.repaint()
         this.addMouseListener(this)
     }
@@ -23,19 +30,25 @@ class JSwingGridPane : JPanel(), MouseListener {
 
         g2d.color = java.awt.Color.GRAY
 
-        for (i in 0 until this.width) {
-            if (i % 10 == 0) {
-                for (j in 0 until this.height) {
-                    if (j % 10 == 0) {
-                        g2d.drawRect(i, j, 10, 10)
-                        if (this.grid.grid[Math.floorDiv(i, 10)][Math.floorDiv(j, 10)]) {
-                            g2d.fillRect(i, j, 10, 10)
-                        }
-                    }
+        for (i in 0 until grid.grid.size) {
+            for (j in 0 until grid.grid.size) {
+                g2d.drawRect(i*10, j*10, 10, 10)
+                if (this.grid.grid[i][j]) {
+                    g2d.fillRect(i*10, j*10, 10, 10)
                 }
             }
         }
 
+        g2d.color = java.awt.Color.YELLOW
+        for (i in path) {
+            g2d.fillRect(i[0] * 10, i[1] * 10, 10, 10)
+        }
+
+        g2d.color = java.awt.Color.ORANGE
+        g2d.fillRect(this.start[0] * 10, this.start[1] * 10, 10, 10)
+
+        g2d.color = java.awt.Color.RED
+        g2d.fillRect(this.end[0] * 10, this.end[1] * 10, 10, 10)
     }
 
     /**
@@ -44,7 +57,13 @@ class JSwingGridPane : JPanel(), MouseListener {
      * @param e the event to be processed
      */
     override fun mouseClicked(e: MouseEvent?) {
-        grid.toggle(e!!.x, e.y)
+        if (e!!.button == MouseEvent.BUTTON1) grid.toggle(e.x, e.y)
+        else {
+            JSwingStartPopup().open {
+                val algo = it.instance()
+                algo.run(start, end, grid)
+            }
+        }
         this.repaint()
     }
 

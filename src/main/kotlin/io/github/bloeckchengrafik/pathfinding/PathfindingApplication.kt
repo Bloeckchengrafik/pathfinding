@@ -6,7 +6,6 @@ import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.builder.SpringApplicationBuilder
 import java.awt.BorderLayout
-import java.awt.Dimension
 import java.awt.event.ActionEvent
 import javax.swing.*
 import kotlin.system.exitProcess
@@ -17,7 +16,6 @@ class PathfindingApplication : CommandLineRunner {
     private val disableClicker = "disableClicker"
     private lateinit var frame: JFrame
     private lateinit var grid: JSwingGridPane
-    private lateinit var ctrl: JSwingControlsPane
     var logger: Logger = LoggerFactory.getLogger(PathfindingApplication::class.java)
 
     var closeButtonAction: Action = object : AbstractAction() {
@@ -29,26 +27,20 @@ class PathfindingApplication : CommandLineRunner {
 
     override fun run(args: Array<String>) {
         logger.info("Starting application")
-        frame = JFrame("Pathfinding Application V1.0")
+        frame =
+            JFrame("Pathfinding Application V1.0 (ESC to close, Right click to run, Left click to lay down walls, left+alt to set end)")
         frame.defaultCloseOperation = JFrame.EXIT_ON_CLOSE
         frame.isResizable = false
-        frame.setSize(700, 500)
+        frame.setSize(500, 500)
 
         val panel = JPanel(BorderLayout())
         addCloseKeyBind(panel)
 
         grid = JSwingGridPane()
-        grid.size = Dimension(500, 500)
-
-        panel.add(grid, 0)
+        grid.setSize(500, 500)
+        panel.add(grid, BorderLayout.CENTER)
 
         grid.setGrid()
-
-        grid.grid.put(499, 499, true)
-
-        ctrl = JSwingControlsPane()
-        ctrl.size = Dimension(200, 500)
-        panel.add(ctrl, 1)
 
         frame.contentPane = panel
         frame.isVisible = true
